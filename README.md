@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -118,7 +119,6 @@ body {
 </div>
 
 <div id="desktop">
-
 <div id="topbar"></div>
 
 <div class="icon" style="top:100px;left:50px" onclick="openApp('safari')">Safari</div>
@@ -130,12 +130,11 @@ body {
     <div class="dock-btn" onclick="openApp('finder')">📂 Finder</div>
     <div class="dock-btn" onclick="openApp('notes')">🗒 Notes</div>
 </div>
-
 </div>
 
 <script>
 
-// USERS
+// USERS (corrigé)
 const users = {
     admin: "1234",
     alex: "0000",
@@ -194,23 +193,21 @@ function boot() {
     document.getElementById("users").innerHTML = html;
 }
 
-// LOGIN
+// LOGIN (corrigé 100%)
 function login(user) {
 
     if (noPassword.includes(user)) {
         desktop();
         return;
     }
-
     let pwd = prompt("Mot de passe pour " + user);
 
-    if (pwd === users[user]) {
+    if (pwd && pwd.trim() === users[user]) {
         desktop();
     } else {
-        alert("Mot de passe incorrect");
+        alert("Mot de passe incorrect !");
     }
 }
-
 // DESKTOP
 function desktop() {
     document.getElementById("boot").style.display = "none";
@@ -227,8 +224,7 @@ function createWindow(title, content) {
     win.innerHTML = `<b>${title}</b><br>${content}`;
 
     document.getElementById("desktop").appendChild(win);
-}
-
+}    
 // APPS
 function openApp(app) {
 
