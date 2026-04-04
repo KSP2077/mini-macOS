@@ -194,18 +194,21 @@ function boot() {
 }
 
 // LOGIN (corrigé 100%)
-function login(user) {
+function boot() {
+    document.getElementById("boot").style.display = "block";
 
-    if (noPassword.includes(user)) {
-        desktop();
-        return;
-    }
-    let pwd = prompt("Mot de passe pour " + user);
+    let container = document.getElementById("users");
+    container.innerHTML = "";
 
-    if (pwd && pwd.trim() === users[user]) {
-        desktop();
-    } else {
-        alert("Mot de passe incorrect !");
+    for (let u in users) {
+        let btn = document.createElement("button");
+        btn.innerText = u;
+
+        btn.onclick = function() {
+            login(u);
+        };
+
+        container.appendChild(btn);
     }
 }
 // DESKTOP
