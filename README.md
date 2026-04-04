@@ -1,77 +1,39 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini macOS</title>
+<title>Mini OS</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial;
+    background: url("DJI_0003.JPG") center/cover;
+    height: 100vh;
     overflow: hidden;
 }
 
-/* ===== LOCK SCREEN ===== */
-#lock {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url("DJI_0003.JPG") center/cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: white;
-    font-size: 60px;
-    cursor: grab;
-}
-
-/* ===== BOOT ===== */
-#boot {
-    display: none;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url("DJI_0003.JPG") center/cover;
-    text-align: center;
-    color: white;
-}
-
-button {
-    padding: 10px;
-    margin: 5px;
-    cursor: pointer;
-}
-
-/* ===== DESKTOP ===== */
-#desktop {
-    display: none;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url("DJI_0003.JPG") center/cover;
-}
-
-/* ICONS */
+/* ===== ICONES ===== */
 .icon {
-    width: 100px;
+    position: absolute;
+    width: 90px;
     height: 60px;
     background: #333;
     color: white;
     text-align: center;
     line-height: 60px;
-    position: absolute;
+    border-radius: 10px;
     cursor: pointer;
 }
 
-/* DOCK */
+/* ===== DOCK ===== */
 #dock {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 70px;
+    height: 60px;
     background: rgba(0,0,0,0.6);
     display: flex;
-    align-items: center;
     justify-content: center;
 }
 
@@ -80,113 +42,76 @@ button {
     padding: 10px;
     background: #444;
     color: white;
+    border-radius: 10px;
     cursor: pointer;
+}
+
+/* ===== FENETRE ===== */
+.window {
+    position: absolute;
+    width: 300px;
+    height: 200px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    top: 100px;
+    left: 150px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOCK -->
-<div id="lock">12:00</div>
+<!-- ICONES -->
+<div class="icon" style="top:100px;left:50px" ondblclick="notes()">Notes</div>
+<div class="icon" style="top:200px;left:50px" ondblclick="save()">Save</div>
 
-<!-- BOOT -->
-<div id="boot">
-    <h1>🍎 MINI macOS</h1>
-    <div id="users"></div>
-</div>
-
-<!-- DESKTOP -->
-<div id="desktop">
-    <div class="icon" style="top:100px;left:50px" onclick="openApp('safari')">Safari</div>
-    <div class="icon" style="top:200px;left:50px" onclick="openApp('finder')">Finder</div>
-    <div class="icon" style="top:300px;left:50px" onclick="openApp('notes')">Notes</div>
-    <div id="dock">
-        <div class="dock-btn" onclick="openApp('safari')">🌍 Safari</div>
-        <div class="dock-btn" onclick="openApp('finder')">📂 Finder</div>
-        <div class="dock-btn" onclick="openApp('notes')">🗒 Notes</div>
-    </div>
-
+<!-- DOCK -->
+<div id="dock">
+    <div class="dock-btn" onclick="notes()">🗒</div>
+    <div class="dock-btn" onclick="save()">💾</div>
 </div>
 
 <script>
-// ===== USERS =====
-const users = {
-    admin: "1234",
-    alex: "0000",
-    guest: null,
-    theo: "1611",
-    enzo: "enzo"
-};
 
-const noPassword = ["guest"];
-
-// ===== CLOCK =====
-setInterval(() => {
-    document.getElementById("lock").innerText =
-        new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-}, 1000);
-
-// ===== SWIPE LOCK =====
-let startX = 0;
-document.getElementById("lock").addEventListener("mousedown", e => {
-    startX = e.clientX;
-});
-
-document.addEventListener("mouseup", e => {
-    if (e.clientX - startX > 150) {
-        document.getElementById("lock").style.display = "none";
-        boot();
-    }
-});
-
-// ===== BOOT SCREEN =====
-function boot() {
-    document.getElementById("boot").style.display = "block";
-
-    let html = "";
-    for (let u in users) {
-        html += `<button onclick="login('${u}')">${u}</button>`;
-    }
-    document.getElementById("users").innerHTML = html;
+// ===== CREER FENETRE =====
+function createWindow(content) {
+    let w = document.createElement("div");
+    w.className = "window";
+    w.innerHTML = content;
+    document.body.appendChild(w);
 }
 
-// ===== LOGIN =====
-function login(user) {
-    if (noPassword.includes(user)) {
-        desktop();
-        return;
-    }
-
-    let pwd = prompt("Mot de passe pour " + user);
-    if (pwd === users[user]) {
-        desktop();
-    }
+// ===== NOTES =====
+function notes() {
+    createWindow(`<textarea style="width:100%;height:100%"></textarea>`);
 }
 
-// ===== DESKTOP =====
-function desktop() {
-    document.getElementById("boot").style.display = "none";
-    document.getElementById("desktop").style.display = "block";
+// ===== SAVE =====
+function save() {
+    createWindow(`
+        Nom fichier:<br>
+        <input id="name"><br><br>
+
+        Contenu:<br>
+        <textarea id="text" style="width:100%;height:60px"></textarea><br>
+
+        <button onclick="download()">💾 Save</button>
+    `);
 }
 
-// ===== APPS =====
-function openApp(app) {
-    if (app === "safari") {
-        let url = prompt("URL ?");
-        if (url && !url.startsWith("http")) url = "https://" + url;
-        window.open(url);
-    }
+// ===== TELECHARGER FICHIER =====
+function download() {
+    let name = document.getElementById("name").value || "file.txt";
+    let text = document.getElementById("text").value;
 
-    if (app === "notes") {
-        let win = window.open();
-        win.document.write("<textarea style='width:100%;height:100%'></textarea>");
-    }
-
-    if (app === "finder") {
-        alert("Finder simulé (version web simple)");
-    }
+    let blob = new Blob([text], {type: "text/plain"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
 }
+
 </script>
 
 </body>
