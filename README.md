@@ -183,6 +183,7 @@ function unlock() {
 }
 
 // BOOT
+// BOOT
 function boot() {
     document.getElementById("boot").style.display = "block";
 
@@ -192,7 +193,6 @@ function boot() {
     }
     document.getElementById("users").innerHTML = html;
 }
-
 // LOGIN (corrigé 100%)
 function boot() {
     document.getElementById("boot").style.display = "block";
