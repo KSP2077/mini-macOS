@@ -98,9 +98,11 @@ button {
 
 <!-- DESKTOP -->
 <div id="desktop">
+
     <div class="icon" style="top:100px;left:50px" onclick="openApp('safari')">Safari</div>
     <div class="icon" style="top:200px;left:50px" onclick="openApp('finder')">Finder</div>
     <div class="icon" style="top:300px;left:50px" onclick="openApp('notes')">Notes</div>
+
     <div id="dock">
         <div class="dock-btn" onclick="openApp('safari')">🌍 Safari</div>
         <div class="dock-btn" onclick="openApp('finder')">📂 Finder</div>
