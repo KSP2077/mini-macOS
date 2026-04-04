@@ -16,11 +16,11 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: url("DJI_0003.JPG") center/cover;
+    background: #222;
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
     font-size: 60px;
     cursor: grab;
 }
@@ -31,9 +31,10 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: url("DJI_0003.JPG") center/cover;
-    text-align: center;
+    background: #333;
     color: white;
+    text-align: center;
+    padding-top: 50px;
 }
 
 /* DESKTOP */
@@ -42,16 +43,17 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: url("DJI_0003.JPG") center/cover;
+    background: #1e1e1e;
+    color: white;
 }
 
-/* TOP BAR */
+/* TOPBAR */
 #topbar {
     position: absolute;
     top: 0;
     width: 100%;
     height: 30px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     color: white;
     text-align: right;
     padding-right: 20px;
@@ -62,8 +64,7 @@ body {
 .icon {
     width: 100px;
     height: 60px;
-    background: #333;
-    color: white;
+    background: #444;
     text-align: center;
     line-height: 60px;
     position: absolute;
@@ -77,23 +78,16 @@ body {
     width: 100%;
     height: 70px;
     background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(10px);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
 .dock-btn {
     margin: 10px;
     padding: 10px;
-    background: #444;
-    color: white;
+    background: #555;
     cursor: pointer;
-    transition: 0.2s;
-}
-
-.dock-btn:hover {
-    transform: scale(1.2);
 }
 
 /* WINDOW */
@@ -102,8 +96,8 @@ body {
     width: 400px;
     height: 300px;
     background: white;
+    color: black;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
     padding: 10px;
 }
 </style>
@@ -111,14 +105,18 @@ body {
 
 <body>
 
-<div id="lock">12:00</div>
+<!-- LOCK -->
+<div id="lock">SWIPE ➜</div>
 
+<!-- BOOT -->
 <div id="boot">
-    <h1>🍎 MINI macOS</h1>
+    <h1>MINI macOS</h1>
     <div id="users"></div>
 </div>
 
+<!-- DESKTOP -->
 <div id="desktop">
+
 <div id="topbar"></div>
 
 <div class="icon" style="top:100px;left:50px" onclick="openApp('safari')">Safari</div>
@@ -126,15 +124,16 @@ body {
 <div class="icon" style="top:300px;left:50px" onclick="openApp('notes')">Notes</div>
 
 <div id="dock">
-    <div class="dock-btn" onclick="openApp('safari')">🌍 Safari</div>
-    <div class="dock-btn" onclick="openApp('finder')">📂 Finder</div>
-    <div class="dock-btn" onclick="openApp('notes')">🗒 Notes</div>
+    <div class="dock-btn" onclick="openApp('safari')">Safari</div>
+    <div class="dock-btn" onclick="openApp('finder')">Finder</div>
+    <div class="dock-btn" onclick="openApp('notes')">Notes</div>
 </div>
+
 </div>
 
 <script>
 
-// USERS (corrigé)
+/* USERS */
 const users = {
     admin: "1234",
     alex: "0000",
@@ -145,31 +144,31 @@ const users = {
 
 const noPassword = ["guest"];
 
-// CLOCK LOCK
+/* CLOCK */
 setInterval(() => {
     document.getElementById("lock").innerText =
-        new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }, 1000);
 
-// TOP BAR CLOCK
+/* TOPBAR CLOCK */
 setInterval(() => {
-    let tb = document.getElementById("topbar");
-    if (tb) tb.innerText = new Date().toLocaleTimeString();
+    let t = document.getElementById("topbar");
+    if (t) t.innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// SWIPE
+/* SWIPE */
 let startX = 0;
 
 document.getElementById("lock").addEventListener("mousedown", e => {
     startX = e.clientX;
 });
 
-document.getElementById("lock").addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
+document.getElementById("lock").addEventListener("mouseup", e => {
+    if (e.clientX - startX > 150) unlock();
 });
 
-document.addEventListener("mouseup", e => {
-    if (e.clientX - startX > 150) unlock();
+document.getElementById("lock").addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
 });
 
 document.addEventListener("touchend", e => {
@@ -182,18 +181,7 @@ function unlock() {
     boot();
 }
 
-// BOOT
-// BOOT
-function boot() {
-    document.getElementById("boot").style.display = "block";
-
-    let html = "";
-    for (let u in users) {
-        html += `<button onclick="login('${u}')">${u}</button>`;
-    }
-    document.getElementById("users").innerHTML = html;
-}
-// LOGIN (corrigé 100%)
+/* BOOT */
 function boot() {
     document.getElementById("boot").style.display = "block";
 
@@ -204,31 +192,45 @@ function boot() {
         let btn = document.createElement("button");
         btn.innerText = u;
 
-        btn.onclick = function() {
-            login(u);
-        };
+        btn.onclick = () => login(u);
 
         container.appendChild(btn);
     }
 }
-// DESKTOP
+
+/* LOGIN */
+function login(user) {
+
+    if (noPassword.includes(user)) {
+        desktop();
+        return;
+    }
+
+    let pwd = prompt("Mot de passe pour " + user);
+
+    if (pwd && pwd.trim() === users[user]) {
+        desktop();
+    } else {
+        alert("Mot de passe incorrect");
+    }
+}
+
+/* DESKTOP */
 function desktop() {
     document.getElementById("boot").style.display = "none";
     document.getElementById("desktop").style.display = "block";
 }
 
-// WINDOW
+/* APPS */
 function createWindow(title, content) {
-    let win = document.createElement("div");
-    win.className = "window";
-    win.style.top = "100px";
-    win.style.left = "200px";
+    let w = document.createElement("div");
+    w.className = "window";
+    w.style.top = "100px";
+    w.style.left = "200px";
+    w.innerHTML = `<b>${title}</b><br>${content}`;
+    document.getElementById("desktop").appendChild(w);
+}
 
-    win.innerHTML = `<b>${title}</b><br>${content}`;
-
-    document.getElementById("desktop").appendChild(win);
-}    
-// APPS
 function openApp(app) {
 
     if (app === "safari") {
@@ -242,7 +244,7 @@ function openApp(app) {
     }
 
     if (app === "finder") {
-        createWindow("Finder", "📂 Finder simulé");
+        createWindow("Finder", "📁 Finder OK");
     }
 }
 
