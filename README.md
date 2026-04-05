@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS PRO</title>
+<title>Mini OS ULTRA FIX</title>
 
 <style>
 body{
@@ -25,24 +25,36 @@ overflow:hidden;
 
 /* desktop */
 #desktop{
+display:none;
 width:100%;
 height:100%;
 position:absolute;
 }
 
-/* icon bureau */
+/* icons */
 .icon{
+width:90px;
+height:50px;
+background:rgba(0,0,0,0.5);
+color:white;
 position:absolute;
-width:80px;
-height:80px;
+display:flex;
+justify-content:center;
+align-items:center;
 cursor:grab;
+user-select:none;
 }
+
+/* positions */
+#app1{top:80px;left:50px;}
+#app2{top:150px;left:50px;}
+#app3{top:220px;left:50px;}
 
 /* window */
 .window{
 position:absolute;
 width:420px;
-height:300px;
+height:320px;
 background:white;
 border-radius:10px;
 padding:10px;
@@ -81,6 +93,10 @@ cursor:grab;
 
 <div id="desktop">
 
+<div id="app1" class="icon" onclick="openApp('finder')">Finder</div>
+<div id="app2" class="icon" onclick="openApp('notes')">Notes</div>
+<div id="app3" class="icon" onclick="openApp('window1')">App</div>
+
 </div>
 
 </div>
@@ -89,7 +105,10 @@ cursor:grab;
 
 const desktop=document.getElementById("desktop");
 
-/* DRAG SIMPLE (bureau + images) */
+/* OPEN */
+desktop.style.display="block";
+
+/* DRAG ICONS + IMAGES */
 function makeDraggable(el){
 
 let dx=0,dy=0,drag=false;
@@ -97,9 +116,9 @@ let dx=0,dy=0,drag=false;
 el.addEventListener("mousedown",(e)=>{
 drag=true;
 
-const r=el.getBoundingClientRect();
-dx=e.clientX-r.left;
-dy=e.clientY-r.top;
+const rect=el.getBoundingClientRect();
+dx=e.clientX-rect.left;
+dy=e.clientY-rect.top;
 
 document.addEventListener("mousemove",move);
 document.addEventListener("mouseup",stop);
@@ -113,12 +132,35 @@ el.style.top=(e.clientY-dy)+"px";
 
 function stop(){
 drag=false;
+savePosition(el);
 document.removeEventListener("mousemove",move);
 document.removeEventListener("mouseup",stop);
 }
 }
 
-/* WINDOW */
+/* SAVE */
+function savePosition(el){
+if(!el.id) return;
+
+localStorage.setItem("icon-"+el.id, JSON.stringify({
+x:el.style.left||"0px",
+y:el.style.top||"0px"
+}));
+}
+
+/* LOAD */
+function loadPositions(){
+document.querySelectorAll(".icon").forEach(el=>{
+const data=localStorage.getItem("icon-"+el.id);
+if(data){
+const pos=JSON.parse(data);
+el.style.left=pos.x;
+el.style.top=pos.y;
+}
+});
+}
+
+/* WINDOWS */
 function createWindow(title,content){
 
 let w=document.createElement("div");
@@ -138,18 +180,29 @@ onclick="this.parentElement.parentElement.remove()">✖</span>
 desktop.appendChild(w);
 }
 
-/* APP FINDER */
-function openFinder(){
+/* APPS */
+function openApp(app){
+
+if(app==="finder"){
 
 createWindow("Finder",`
-<div id="dropZone">📁 Glisse des images JPG ici</div>
+<div id="dropZone">📁 Glisse JPG ici</div>
 <div id="gallery"></div>
 `);
 
-setupFinder();
+setTimeout(setupFinder,200);
 }
 
-/* FINDER DRAG & DROP */
+if(app==="notes"){
+createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
+}
+
+if(app==="window1"){
+createWindow("App","OK");
+}
+}
+
+/* FINDER */
 function setupFinder(){
 
 const dropZone=document.getElementById("dropZone");
@@ -157,7 +210,6 @@ const gallery=document.getElementById("gallery");
 
 if(!dropZone || !gallery) return;
 
-/* hover */
 dropZone.addEventListener("dragover",(e)=>{
 e.preventDefault();
 dropZone.style.background="#222";
@@ -167,14 +219,11 @@ dropZone.addEventListener("dragleave",()=>{
 dropZone.style.background="transparent";
 });
 
-/* drop JPG */
 dropZone.addEventListener("drop",(e)=>{
 e.preventDefault();
 dropZone.style.background="transparent";
 
-const files=e.dataTransfer.files;
-
-for(let file of files){
+for(let file of e.dataTransfer.files){
 
 if(file.type==="image/jpeg"){
 
@@ -183,11 +232,8 @@ const reader=new FileReader();
 reader.onload=(ev)=>{
 const img=document.createElement("img");
 img.src=ev.target.result;
-
 gallery.appendChild(img);
-
-/* 🔥 drag vers bureau */
-enableDragToDesktop(img);
+makeDraggable(img); // drag possible
 };
 
 reader.readAsDataURL(file);
@@ -196,51 +242,12 @@ reader.readAsDataURL(file);
 });
 }
 
-/* IMAGE -> BUREAU */
-function enableDragToDesktop(img){
-
-img.draggable=true;
-
-img.addEventListener("dragstart",(e)=>{
-e.dataTransfer.setData("img",img.src);
+/* INIT */
+document.querySelectorAll(".icon").forEach(el=>{
+makeDraggable(el);
 });
 
-/* drop sur bureau */
-desktop.addEventListener("dragover",(e)=>{
-e.preventDefault();
-});
-
-desktop.addEventListener("drop",(e)=>{
-e.preventDefault();
-
-const src=e.dataTransfer.getData("img");
-
-if(src){
-createDesktopImage(src,e.clientX,e.clientY);
-}
-});
-}
-
-/* IMAGE SUR BUREAU */
-function createDesktopImage(src,x,y){
-
-let img=document.createElement("img");
-
-img.src=src;
-img.className="icon";
-img.style.left=x+"px";
-img.style.top=y+"px";
-
-desktop.appendChild(img);
-
-makeDraggable(img);
-}
-
-/* DEMO APP */
-let finderBtn=document.createElement("button");
-finderBtn.innerText="Finder";
-finderBtn.onclick=openFinder;
-desktop.appendChild(finderBtn);
+loadPositions();
 
 </script>
 
