@@ -5,10 +5,12 @@
 <title>Mini macOS</title>
 
 <style>
+
 body {
     margin: 0;
     font-family: Arial;
     overflow: hidden;
+    background: url("DJI_0003.JPG") center center / cover no-repeat;
 }
 
 /* LOCK */
@@ -16,7 +18,7 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #222;
+    background: rgba(0,0,0,0.6);
     color: white;
     display: flex;
     justify-content: center;
@@ -30,7 +32,7 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #333;
+    background: rgba(0,0,0,0.7);
     color: white;
     text-align: center;
     padding-top: 50px;
@@ -42,7 +44,6 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #1e1e1e;
     color: white;
 }
 
@@ -52,7 +53,7 @@ body {
     top: 0;
     width: 100%;
     height: 30px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     line-height: 30px;
     text-align: right;
     padding-right: 10px;
@@ -62,7 +63,7 @@ body {
 .icon {
     width: 90px;
     height: 50px;
-    background: #444;
+    background: rgba(0,0,0,0.5);
     position: absolute;
     text-align: center;
     line-height: 50px;
@@ -75,7 +76,7 @@ body {
     bottom: 0;
     width: 100%;
     height: 60px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -93,10 +94,13 @@ body {
     position: absolute;
     width: 300px;
     height: 200px;
-    background: white;
+    background: rgba(255,255,255,0.9);
     color: black;
     padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
+
 </style>
 </head>
 
@@ -179,18 +183,13 @@ function boot() {
     for (let u in users) {
         let btn = document.createElement("button");
         btn.innerText = u;
-
-        btn.onclick = function () {
-            login(u);
-        };
-
+        btn.onclick = () => login(u);
         container.appendChild(btn);
     }
 }
 
 /* LOGIN */
 function login(user) {
-
     if (user === "guest") {
         openDesktop();
         return;
@@ -211,7 +210,7 @@ function openDesktop() {
     document.getElementById("desktop").style.display = "block";
 }
 
-/* APPS */
+/* WINDOWS */
 function createWindow(title, content) {
     let w = document.createElement("div");
     w.className = "window";
@@ -221,6 +220,7 @@ function createWindow(title, content) {
     document.getElementById("desktop").appendChild(w);
 }
 
+/* APPS */
 function openApp(app) {
 
     if (app === "safari") {
