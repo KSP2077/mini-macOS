@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS PRO</title>
+<title>Mini OS MAX</title>
 
 <style>
 body {
@@ -58,15 +58,6 @@ body {
 }
 
 /* APPS */
-#apps {
-    position: absolute;
-    top: 50px;
-    left: 20px;
-    display: grid;
-    grid-template-columns: repeat(3, 90px);
-    gap: 20px;
-}
-
 .icon {
     width: 90px;
     height: 50px;
@@ -75,7 +66,13 @@ body {
     line-height: 50px;
     cursor: pointer;
     color: white;
+    position: absolute;
 }
+
+/* POSITION INIT */
+#app1 { top:80px; left:50px; }
+#app2 { top:150px; left:50px; }
+#app3 { top:220px; left:50px; }
 
 /* TASKBAR */
 #taskbar {
@@ -120,17 +117,15 @@ body {
 <div id="lock">SWIPE ➜</div>
 
 <div id="boot">
-    <h2>MINI OS PRO</h2>
+    <h2>MINI OS MAX</h2>
     <div id="users"></div>
 </div>
 
 <div id="desktop">
 
-<div id="apps">
-    <div class="icon" onclick="openApp('finder')">Finder</div>
-    <div class="icon" onclick="openApp('notes')">Notes</div>
-    <div class="icon" onclick="openApp('window1')">Fenêtre</div>
-</div>
+<div id="app1" class="icon" onclick="openApp('finder')">Finder</div>
+<div id="app2" class="icon" onclick="openApp('notes')">Notes</div>
+<div id="app3" class="icon" onclick="openApp('window1')">Fenêtre</div>
 
 <div id="taskbar">
     <div class="task-icon" onclick="openApp('finder')">📁</div>
@@ -199,16 +194,16 @@ usersDiv.appendChild(b);
 /* LOGIN */
 function login(u){
 if(u==="guest"){openDesktop();return;}
-
 let pwd=prompt("Mot de passe");
 if(pwd===users[u])openDesktop();
-else alert("❌ mauvais mot de passe");
+else alert("❌");
 }
 
 /* DESKTOP */
 function openDesktop(){
 bootEl.style.display="none";
 desktopEl.style.display="block";
+initDrag();
 }
 
 /* WINDOW */
@@ -230,12 +225,36 @@ onclick="this.parentElement.parentElement.remove()">⚙️</span>
 desktopEl.appendChild(w);
 }
 
-/* DRAG & DROP */
+/* DRAG APPS */
+function makeDraggable(el){
+let offsetX=0, offsetY=0, isDown=false;
+
+el.onmousedown=e=>{
+isDown=true;
+offsetX=e.clientX-el.offsetLeft;
+offsetY=e.clientY-el.offsetTop;
+};
+
+document.onmousemove=e=>{
+if(!isDown) return;
+el.style.left=(e.clientX-offsetX)+"px";
+el.style.top=(e.clientY-offsetY)+"px";
+};
+
+document.onmouseup=()=>isDown=false;
+}
+
+function initDrag(){
+document.querySelectorAll(".icon")
+.forEach(icon=>makeDraggable(icon));
+}
+
+/* FINDER DRAG IMAGE */
 function setupDrop(){
 const dz=document.getElementById("dropZone");
 const gal=document.getElementById("gallery");
 
-if(!dz || !gal) return;
+if(!dz) return;
 
 dz.ondragover=e=>{e.preventDefault();dz.style.background="#444";};
 dz.ondragleave=()=>dz.style.background="transparent";
@@ -251,7 +270,6 @@ r.onload=ev=>{
 let img=document.createElement("img");
 img.src=ev.target.result;
 img.style.width="100%";
-img.style.borderRadius="8px";
 gal.appendChild(img);
 };
 r.readAsDataURL(f);
@@ -268,13 +286,13 @@ createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
 }
 
 if(app==="window1"){
-createWindow("Fenêtre","🎉 Nouvelle fenêtre !");
+createWindow("Fenêtre","🎉 OK !");
 }
 
 if(app==="finder"){
 createWindow("Finder",`
 <div id="dropZone" style="border:2px dashed gray;padding:20px;text-align:center">
-Glisse images JPG ici 📂
+Glisse images ici
 </div>
 <div id="gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"></div>
 `);
