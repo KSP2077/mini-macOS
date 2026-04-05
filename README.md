@@ -243,3 +243,4 @@ function openApp(app) {
 
 </body>
 </html>
+https://github.com/KSP2077/mini-macOS/blob/f42722c917c1dde94d49e22ecc2f072a5e0fea2d/DJI_0003.JPG
