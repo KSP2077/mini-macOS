@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini macOS</title>
+<title>Mini OS</title>
 
 <style>
 
@@ -16,10 +16,10 @@ body {
     overflow: hidden;
 }
 
-/* ÉCRAN 1920x1080 */
+/* ÉCRAN 1024x720 */
 #screen {
-    width: 1920px;
-    height: 1080px;
+    width: 1024px;
+    height: 720px;
     position: relative;
     font-family: Arial;
     overflow: hidden;
@@ -60,49 +60,48 @@ body {
     color: white;
 }
 
-/* TOPBAR */
-#topbar {
+/* APPS BUREAU */
+#apps {
     position: absolute;
-    top: 0;
-    width: 100%;
-    height: 30px;
-    background: rgba(0,0,0,0.5);
-    line-height: 30px;
-    text-align: right;
-    padding-right: 10px;
+    top: 50px;
+    left: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 90px);
+    gap: 20px;
 }
 
-/* ICON */
 .icon {
     width: 90px;
     height: 50px;
     background: rgba(0,0,0,0.5);
-    position: absolute;
     text-align: center;
     line-height: 50px;
     cursor: pointer;
 }
 
-/* DOCK */
-#dock {
+/* TASKBAR */
+#taskbar {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 60px;
-    background: rgba(0,0,0,0.5);
+    height: 45px;
+    background: rgba(0,0,0,0.6);
     display: flex;
-    justify-content: center;
     align-items: center;
+    padding: 0 10px;
 }
 
-.dock-btn {
-    margin: 5px;
-    padding: 8px;
-    background: #555;
+.task-icon {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    margin-right: 8px;
+    border-radius: 6px;
     cursor: pointer;
+    color: white;
+    font-size: 14px;
 }
 
-/* WINDOW */
+/* WINDOWS */
 .window {
     position: absolute;
     width: 300px;
@@ -126,23 +125,27 @@ body {
 
 <!-- BOOT -->
 <div id="boot">
-    <h2>MINI macOS</h2>
+    <h2>MINI OS</h2>
     <div id="users"></div>
 </div>
 
 <!-- DESKTOP -->
 <div id="desktop">
 
-<div id="topbar"></div>
+<!-- APPS BUREAU -->
+<div id="apps">
+    <div class="icon" onclick="openApp('safari')">Safari</div>
+    <div class="icon" onclick="openApp('finder')">Finder</div>
+    <div class="icon" onclick="openApp('notes')">Notes</div>
 
-<div class="icon" style="top:80px;left:50px" onclick="openApp('safari')">Safari</div>
-<div class="icon" style="top:150px;left:50px" onclick="openApp('finder')">Finder</div>
-<div class="icon" style="top:220px;left:50px" onclick="openApp('notes')">Notes</div>
+</div>
 
-<div id="dock">
-    <div class="dock-btn" onclick="openApp('safari')">Safari</div>
-    <div class="dock-btn" onclick="openApp('finder')">Finder</div>
-    <div class="dock-btn" onclick="openApp('notes')">Notes</div>
+<!-- TASKBAR -->
+<div id="taskbar">
+    <div class="task-icon" onclick="openApp('safari')">🌐 Safari</div>
+    <div class="task-icon" onclick="openApp('finder')">📁 Finder</div>
+    <div class="task-icon" onclick="openApp('notes')">📝 Notes</div>
+    <div style="margin-left:auto;color:white;padding-right:10px" id="time"></div>
 </div>
 
 </div>
@@ -158,16 +161,24 @@ const users = {
     guest: ""
 };
 
-/* CLOCK */
+/* CLOCK LOCK */
 setInterval(() => {
     document.getElementById("lock").innerText =
-        new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + "  ➜ SWIPE";
+        new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + " ➜ SWIPE";
 }, 1000);
 
-setInterval(() => {
-    let t = document.getElementById("topbar");
-    if (t) t.innerText = new Date().toLocaleTimeString();
-}, 1000);
+/* TASKBAR TIME */
+function updateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    document.getElementById("time").innerText = time;
+}
+setInterval(updateTime, 1000);
+updateTime();
 
 /* SWIPE */
 let startX = 0;
