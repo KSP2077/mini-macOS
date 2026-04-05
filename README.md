@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS FULL</title>
+<title>Mini OS FULL PRO</title>
 
 <style>
 body{
@@ -33,7 +33,7 @@ color:white;
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:30px;
+font-size:28px;
 cursor:pointer;
 }
 
@@ -101,12 +101,31 @@ color:white;
 /* WINDOW */
 .window{
 position:absolute;
-width:400px;
-height:300px;
+width:420px;
+height:320px;
 background:white;
 color:black;
 border-radius:10px;
 padding:10px;
+overflow:auto;
+}
+
+/* FINDER */
+#dropZone{
+width:100%;
+height:120px;
+border:2px dashed gray;
+display:flex;
+justify-content:center;
+align-items:center;
+color:gray;
+margin-bottom:10px;
+}
+
+#gallery img{
+width:100%;
+margin-bottom:10px;
+border-radius:8px;
 }
 </style>
 </head>
@@ -115,10 +134,13 @@ padding:10px;
 
 <div id="screen">
 
+<!-- LOCK -->
 <div id="lock" onclick="unlock()">🔒 Swipe pour ouvrir</div>
 
+<!-- BOOT -->
 <div id="boot">
-<h2>MINI OS</h2>
+
+<h2>MINI OS FULL</h2>
 
 <div id="loginBox">
 <select id="userSelect"></select><br><br>
@@ -128,6 +150,7 @@ padding:10px;
 
 </div>
 
+<!-- DESKTOP -->
 <div id="desktop">
 
 <div id="app1" class="icon">Finder</div>
@@ -158,7 +181,7 @@ document.getElementById("boot").style.display="block";
 initUsers();
 }
 
-/* INIT USERS */
+/* USERS INIT */
 function initUsers(){
 const sel=document.getElementById("userSelect");
 sel.innerHTML="";
@@ -189,11 +212,12 @@ function openDesktop(){
 document.getElementById("boot").style.display="none";
 document.getElementById("desktop").style.display="block";
 
+/* drag icons */
 document.querySelectorAll(".icon").forEach(el=>{
 makeDraggable(el);
 });
 
-/* double clic */
+/* double click */
 document.getElementById("app1").ondblclick=()=>openApp("finder");
 document.getElementById("app2").ondblclick=()=>openApp("notes");
 document.getElementById("app3").ondblclick=()=>openApp("app");
@@ -244,7 +268,11 @@ document.getElementById("desktop").appendChild(w);
 function openApp(app){
 
 if(app==="finder"){
-createWindow("Finder","📁 OK (base)");
+createWindow("Finder",`
+<div id="dropZone">📁 Glisse JPG ici</div>
+<div id="gallery"></div>
+`);
+setTimeout(setupFinder,100);
 }
 
 if(app==="notes"){
@@ -256,10 +284,47 @@ createWindow("App","🚀 OK");
 }
 }
 
+/* FINDER */
+function setupFinder(){
+
+const dropZone=document.getElementById("dropZone");
+const gallery=document.getElementById("gallery");
+
+dropZone.addEventListener("dragover",(e)=>{
+e.preventDefault();
+dropZone.style.background="rgba(0,0,0,0.2)";
+});
+
+dropZone.addEventListener("dragleave",()=>{
+dropZone.style.background="transparent";
+});
+
+dropZone.addEventListener("drop",(e)=>{
+e.preventDefault();
+dropZone.style.background="transparent";
+
+for(let file of e.dataTransfer.files){
+
+if(file.type==="image/jpeg"){
+
+let reader=new FileReader();
+
+reader.onload=(ev)=>{
+let img=document.createElement("img");
+img.src=ev.target.result;
+gallery.appendChild(img);
+};
+
+reader.readAsDataURL(file);
+}
+}
+});
+}
+
 /* CLOCK */
 setInterval(()=>{
 document.getElementById("time").innerText=
-new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 },1000);
 
 </script>
