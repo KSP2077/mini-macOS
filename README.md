@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS ULTRA</title>
+<title>Mini OS MAX</title>
 
 <style>
 body {
@@ -69,7 +69,7 @@ body {
     cursor: grab;
 }
 
-/* positions initiales */
+/* positions */
 #app1 { top:80px; left:50px; }
 #app2 { top:150px; left:50px; }
 #app3 { top:220px; left:50px; }
@@ -106,7 +106,7 @@ body {
 <div id="lock">SWIPE ➜</div>
 
 <div id="boot">
-    <h2>MINI OS ULTRA</h2>
+    <h2>MINI OS</h2>
     <div id="users"></div>
 </div>
 
@@ -178,18 +178,15 @@ if(pwd===users[u])openDesktop();
 else alert("❌");
 }
 
-/* DESKTOP */
 function openDesktop(){
 bootEl.style.display="none";
 desktopEl.style.display="block";
 
 document.querySelectorAll(".icon")
 .forEach(icon=>makeDraggable(icon));
-
-loadPositions(); // recharge positions
 }
 
-/* DRAG */
+/* DRAG QUI MARCHE */
 function makeDraggable(el){
 
 let offsetX=0, offsetY=0, isDragging=false;
@@ -211,35 +208,12 @@ el.style.top=(e.clientY-offsetY)+"px";
 
 function stop(){
 isDragging=false;
-savePosition(el);
-
 document.removeEventListener("mousemove",move);
 document.removeEventListener("mouseup",stop);
 }
 }
 
-/* SAVE */
-function savePosition(el){
-const pos = {
-x: el.style.left,
-y: el.style.top
-};
-localStorage.setItem("icon-"+el.id, JSON.stringify(pos));
-}
-
-/* LOAD */
-function loadPositions(){
-document.querySelectorAll(".icon").forEach(el=>{
-const data = localStorage.getItem("icon-"+el.id);
-if(data){
-const pos = JSON.parse(data);
-el.style.left = pos.x;
-el.style.top = pos.y;
-}
-});
-}
-
-/* WINDOW */
+/* WINDOWS */
 function createWindow(title,content){
 let w=document.createElement("div");
 w.className="window";
@@ -266,11 +240,11 @@ createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
 }
 
 if(app==="window1"){
-createWindow("Fenêtre","🎉 OK !");
+createWindow("Fenêtre","OK !");
 }
 
 if(app==="finder"){
-createWindow("Finder","Mini Finder prêt 📁");
+createWindow("Finder","Glisse images ici (option avancée)");
 }
 
 }
