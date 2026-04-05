@@ -8,6 +8,19 @@
 
 body {
     margin: 0;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ÉCRAN 1920x1080 */
+#screen {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
     font-family: Arial;
     overflow: hidden;
     background: url("DJI_0003.JPG") center center / cover no-repeat;
@@ -106,6 +119,8 @@ body {
 
 <body>
 
+<div id="screen">
+
 <!-- LOCK -->
 <div id="lock">SWIPE ➜</div>
 
@@ -128,6 +143,8 @@ body {
     <div class="dock-btn" onclick="openApp('safari')">Safari</div>
     <div class="dock-btn" onclick="openApp('finder')">Finder</div>
     <div class="dock-btn" onclick="openApp('notes')">Notes</div>
+</div>
+
 </div>
 
 </div>
@@ -243,4 +260,3 @@ function openApp(app) {
 
 </body>
 </html>
-https://github.com/KSP2077/mini-macOS/blob/f42722c917c1dde94d49e22ecc2f072a5e0fea2d/DJI_0003.JPG
