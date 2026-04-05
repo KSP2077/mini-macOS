@@ -2,9 +2,10 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS MAX</title>
+<title>Mini OS PRO</title>
 
 <style>
+
 body {
     margin: 0;
     background: black;
@@ -55,24 +56,27 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
+    color: white;
 }
 
 /* APPS */
+#apps {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 90px);
+    gap: 20px;
+}
+
 .icon {
     width: 90px;
     height: 50px;
     background: rgba(0,0,0,0.5);
     text-align: center;
     line-height: 50px;
-    color: white;
-    position: absolute;
-    cursor: grab;
+    cursor: pointer;
 }
-
-/* positions */
-#app1 { top:80px; left:50px; }
-#app2 { top:150px; left:50px; }
-#app3 { top:220px; left:50px; }
 
 /* TASKBAR */
 #taskbar {
@@ -84,7 +88,14 @@ body {
     display: flex;
     align-items: center;
     padding: 0 10px;
-    color: white;
+}
+
+.task-icon {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    margin-right: 8px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 /* WINDOW */
@@ -92,10 +103,14 @@ body {
     position: absolute;
     width: 400px;
     height: 300px;
-    background: white;
+    background: rgba(255,255,255,0.95);
+    color: black;
     padding: 10px;
     border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    overflow: auto;
 }
+
 </style>
 </head>
 
@@ -106,17 +121,22 @@ body {
 <div id="lock">SWIPE ➜</div>
 
 <div id="boot">
-    <h2>MINI OS</h2>
+    <h2>MINI OS PRO</h2>
     <div id="users"></div>
 </div>
 
 <div id="desktop">
 
-<div id="app1" class="icon" onclick="openApp('finder')">Finder</div>
-<div id="app2" class="icon" onclick="openApp('notes')">Notes</div>
-<div id="app3" class="icon" onclick="openApp('window1')">Fenêtre</div>
+<div id="apps">
+    <div class="icon" onclick="openApp('finder')">Finder</div>
+    <div class="icon" onclick="openApp('notes')">Notes</div>
+    <div class="icon" onclick="openApp('window1')">Fenêtre</div>
+</div>
 
 <div id="taskbar">
+    <div class="task-icon" onclick="openApp('finder')">📁</div>
+    <div class="task-icon" onclick="openApp('notes')">📝</div>
+    <div class="task-icon" onclick="openApp('window1')">🪟</div>
     <div style="margin-left:auto" id="time"></div>
 </div>
 
@@ -126,18 +146,12 @@ body {
 
 <script>
 
-/* ELEMENTS */
-const lockEl = document.getElementById("lock");
-const bootEl = document.getElementById("boot");
-const desktopEl = document.getElementById("desktop");
-const usersDiv = document.getElementById("users");
-
 /* USERS */
 const users = {Enzo:"enzo", Theo:"1611", guest:""};
 
 /* CLOCK */
 setInterval(()=>{
-lockEl.innerText =
+document.getElementById("lock").innerText =
 new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})+" ➜ SWIPE";
 },1000);
 
@@ -148,20 +162,19 @@ new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
 /* SWIPE */
 let startX=0;
+lock.onmousedown=e=>startX=e.clientX;
+lock.onmouseup=e=>{if(e.clientX-startX>120)unlock();}
+lock.ontouchstart=e=>startX=e.touches[0].clientX;
+document.ontouchend=e=>{
+if(e.changedTouches[0].clientX-startX>120)unlock();
+};
 
-lockEl.onmousedown=e=>startX=e.clientX;
-lockEl.onmouseup=e=>{if(e.clientX-startX>120)unlock();};
-
-function unlock(){
-lockEl.style.display="none";
-boot();
-}
+function unlock(){lock.style.display="none";boot();}
 
 /* BOOT */
 function boot(){
-bootEl.style.display="block";
+boot.style.display="block";
 usersDiv.innerHTML="";
-
 for(let u in users){
 let b=document.createElement("button");
 b.innerText=u;
@@ -173,47 +186,16 @@ usersDiv.appendChild(b);
 /* LOGIN */
 function login(u){
 if(u==="guest"){openDesktop();return;}
-let pwd=prompt("Mot de passe");
-if(pwd===users[u])openDesktop();
+if(prompt("Mot de passe")==users[u])openDesktop();
 else alert("❌");
 }
 
 function openDesktop(){
-bootEl.style.display="none";
-desktopEl.style.display="block";
-
-document.querySelectorAll(".icon")
-.forEach(icon=>makeDraggable(icon));
+boot.style.display="none";
+desktop.style.display="block";
 }
 
-/* DRAG QUI MARCHE */
-function makeDraggable(el){
-
-let offsetX=0, offsetY=0, isDragging=false;
-
-el.addEventListener("mousedown",(e)=>{
-isDragging=true;
-offsetX=e.clientX-el.offsetLeft;
-offsetY=e.clientY-el.offsetTop;
-
-document.addEventListener("mousemove",move);
-document.addEventListener("mouseup",stop);
-});
-
-function move(e){
-if(!isDragging) return;
-el.style.left=(e.clientX-offsetX)+"px";
-el.style.top=(e.clientY-offsetY)+"px";
-}
-
-function stop(){
-isDragging=false;
-document.removeEventListener("mousemove",move);
-document.removeEventListener("mouseup",stop);
-}
-}
-
-/* WINDOWS */
+/* WINDOW */
 function createWindow(title,content){
 let w=document.createElement("div");
 w.className="window";
@@ -223,13 +205,42 @@ w.style.left="200px";
 w.innerHTML=`
 <div style="display:flex;justify-content:space-between;">
 <b>${title}</b>
-<span style="color:gold;cursor:pointer"
+<span style="color:gold;cursor:pointer;font-size:18px;
+filter:drop-shadow(0 0 3px gold);"
 onclick="this.parentElement.parentElement.remove()">⚙️</span>
 </div>
-${content}
+<div style="margin-top:10px">${content}</div>
 `;
 
-desktopEl.appendChild(w);
+desktop.appendChild(w);
+}
+
+/* FINDER DRAG DROP */
+function setupDrop(){
+const dz=document.getElementById("dropZone");
+const gal=document.getElementById("gallery");
+
+dz.ondragover=e=>{e.preventDefault();dz.style.background="#444";}
+dz.ondragleave=()=>dz.style.background="transparent";
+
+dz.ondrop=e=>{
+e.preventDefault();
+dz.style.background="transparent";
+
+for(let f of e.dataTransfer.files){
+if(f.type.startsWith("image/")){
+let r=new FileReader();
+r.onload=ev=>{
+let img=document.createElement("img");
+img.src=ev.target.result;
+img.style.width="100%";
+img.style.borderRadius="8px";
+gal.appendChild(img);
+};
+r.readAsDataURL(f);
+}
+}
+};
 }
 
 /* APPS */
@@ -240,11 +251,17 @@ createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
 }
 
 if(app==="window1"){
-createWindow("Fenêtre","OK !");
+createWindow("Fenêtre","🎉 OK !");
 }
 
 if(app==="finder"){
-createWindow("Finder","Glisse images ici (option avancée)");
+createWindow("Finder",`
+<div id="dropZone" style="border:2px dashed gray;padding:20px;text-align:center">
+Glisse images JPG ici
+</div>
+<div id="gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"></div>
+`);
+setTimeout(setupDrop,100);
 }
 
 }
