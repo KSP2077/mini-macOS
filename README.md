@@ -21,8 +21,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 60px;
-    cursor: grab;
+    font-size: 40px;
 }
 
 /* BOOT */
@@ -54,21 +53,19 @@ body {
     width: 100%;
     height: 30px;
     background: rgba(0,0,0,0.6);
-    color: white;
-    text-align: right;
-    padding-right: 15px;
     line-height: 30px;
+    text-align: right;
+    padding-right: 10px;
 }
 
-/* ICONS */
+/* ICON */
 .icon {
-    width: 100px;
-    height: 60px;
+    width: 90px;
+    height: 50px;
     background: #444;
-    color: white;
-    text-align: center;
-    line-height: 60px;
     position: absolute;
+    text-align: center;
+    line-height: 50px;
     cursor: pointer;
 }
 
@@ -77,7 +74,7 @@ body {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 70px;
+    height: 60px;
     background: rgba(0,0,0,0.6);
     display: flex;
     justify-content: center;
@@ -85,21 +82,19 @@ body {
 }
 
 .dock-btn {
-    margin: 10px;
-    padding: 10px;
+    margin: 5px;
+    padding: 8px;
     background: #555;
-    color: white;
     cursor: pointer;
 }
 
 /* WINDOW */
 .window {
     position: absolute;
-    width: 350px;
-    height: 250px;
+    width: 300px;
+    height: 200px;
     background: white;
     color: black;
-    border-radius: 10px;
     padding: 10px;
 }
 </style>
@@ -112,7 +107,7 @@ body {
 
 <!-- BOOT -->
 <div id="boot">
-    <h1>MINI macOS</h1>
+    <h2>MINI macOS</h2>
     <div id="users"></div>
 </div>
 
@@ -121,9 +116,9 @@ body {
 
 <div id="topbar"></div>
 
-<div class="icon" style="top:100px;left:50px" onclick="openApp('safari')">Safari</div>
-<div class="icon" style="top:200px;left:50px" onclick="openApp('finder')">Finder</div>
-<div class="icon" style="top:300px;left:50px" onclick="openApp('notes')">Notes</div>
+<div class="icon" style="top:80px;left:50px" onclick="openApp('safari')">Safari</div>
+<div class="icon" style="top:150px;left:50px" onclick="openApp('finder')">Finder</div>
+<div class="icon" style="top:220px;left:50px" onclick="openApp('notes')">Notes</div>
 
 <div id="dock">
     <div class="dock-btn" onclick="openApp('safari')">Safari</div>
@@ -138,16 +133,16 @@ body {
 /* USERS */
 const users = {
     Enzo: "enzo",
-    Theo: "1611"
+    Theo: "1611",
+    guest: ""
 };
 
-/* CLOCK LOCK */
+/* CLOCK */
 setInterval(() => {
     document.getElementById("lock").innerText =
-        new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + "  ➜ SWIPE";
 }, 1000);
 
-/* TOPBAR CLOCK */
 setInterval(() => {
     let t = document.getElementById("topbar");
     if (t) t.innerText = new Date().toLocaleTimeString();
@@ -156,17 +151,13 @@ setInterval(() => {
 /* SWIPE */
 let startX = 0;
 
-document.getElementById("lock").addEventListener("mousedown", e => {
-    startX = e.clientX;
-});
+document.getElementById("lock").onmousedown = e => startX = e.clientX;
 
-document.getElementById("lock").addEventListener("mouseup", e => {
+document.getElementById("lock").onmouseup = e => {
     if (e.clientX - startX > 120) unlock();
-});
+};
 
-document.getElementById("lock").addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-});
+document.getElementById("lock").ontouchstart = e => startX = e.touches[0].clientX;
 
 document.addEventListener("touchend", e => {
     let endX = e.changedTouches[0].clientX;
@@ -200,17 +191,22 @@ function boot() {
 /* LOGIN */
 function login(user) {
 
+    if (user === "guest") {
+        openDesktop();
+        return;
+    }
+
     let pwd = prompt("Mot de passe pour " + user);
 
-    if (pwd && pwd.trim() === users[user]) {
-        desktop();
+    if (pwd === users[user]) {
+        openDesktop();
     } else {
-        alert("Mot de passe incorrect");
+        alert("❌ mauvais mot de passe");
     }
 }
 
 /* DESKTOP */
-function desktop() {
+function openDesktop() {
     document.getElementById("boot").style.display = "none";
     document.getElementById("desktop").style.display = "block";
 }
@@ -219,9 +215,9 @@ function desktop() {
 function createWindow(title, content) {
     let w = document.createElement("div");
     w.className = "window";
-    w.style.top = "100px";
+    w.style.top = "120px";
     w.style.left = "200px";
-    w.innerHTML = `<b>${title}</b><br>${content}`;
+    w.innerHTML = "<b>" + title + "</b><br>" + content;
     document.getElementById("desktop").appendChild(w);
 }
 
@@ -229,16 +225,17 @@ function openApp(app) {
 
     if (app === "safari") {
         let url = prompt("URL ?");
-        if (url && !url.startsWith("http")) url = "https://" + url;
+        if (!url) return;
+        if (!url.startsWith("http")) url = "https://" + url;
         window.open(url);
     }
 
     if (app === "notes") {
-        createWindow("Notes", "<textarea style='width:100%;height:200px'></textarea>");
+        createWindow("Notes", "<textarea style='width:100%;height:140px'></textarea>");
     }
 
     if (app === "finder") {
-        createWindow("Finder", "📁 système OK");
+        createWindow("Finder", "📁 OK");
     }
 }
 
