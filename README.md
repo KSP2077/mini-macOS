@@ -56,7 +56,7 @@ body {
     background: rgba(0,0,0,0.6);
     color: white;
     text-align: right;
-    padding-right: 20px;
+    padding-right: 15px;
     line-height: 30px;
 }
 
@@ -65,6 +65,7 @@ body {
     width: 100px;
     height: 60px;
     background: #444;
+    color: white;
     text-align: center;
     line-height: 60px;
     position: absolute;
@@ -87,14 +88,15 @@ body {
     margin: 10px;
     padding: 10px;
     background: #555;
+    color: white;
     cursor: pointer;
 }
 
 /* WINDOW */
 .window {
     position: absolute;
-    width: 400px;
-    height: 300px;
+    width: 350px;
+    height: 250px;
     background: white;
     color: black;
     border-radius: 10px;
@@ -135,16 +137,11 @@ body {
 
 /* USERS */
 const users = {
-    admin: "1234",
-    alex: "0000",
     Enzo: "enzo",
-    Theo: "1611",
-    guest: null
+    Theo: "1611"
 };
 
-const noPassword = ["guest"];
-
-/* CLOCK */
+/* CLOCK LOCK */
 setInterval(() => {
     document.getElementById("lock").innerText =
         new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -164,7 +161,7 @@ document.getElementById("lock").addEventListener("mousedown", e => {
 });
 
 document.getElementById("lock").addEventListener("mouseup", e => {
-    if (e.clientX - startX > 150) unlock();
+    if (e.clientX - startX > 120) unlock();
 });
 
 document.getElementById("lock").addEventListener("touchstart", e => {
@@ -173,7 +170,7 @@ document.getElementById("lock").addEventListener("touchstart", e => {
 
 document.addEventListener("touchend", e => {
     let endX = e.changedTouches[0].clientX;
-    if (endX - startX > 150) unlock();
+    if (endX - startX > 120) unlock();
 });
 
 function unlock() {
@@ -192,7 +189,9 @@ function boot() {
         let btn = document.createElement("button");
         btn.innerText = u;
 
-        btn.onclick = () => login(u);
+        btn.onclick = function () {
+            login(u);
+        };
 
         container.appendChild(btn);
     }
@@ -200,11 +199,6 @@ function boot() {
 
 /* LOGIN */
 function login(user) {
-
-    if (noPassword.includes(user)) {
-        desktop();
-        return;
-    }
 
     let pwd = prompt("Mot de passe pour " + user);
 
@@ -244,7 +238,7 @@ function openApp(app) {
     }
 
     if (app === "finder") {
-        createWindow("Finder", "📁 Finder OK");
+        createWindow("Finder", "📁 système OK");
     }
 }
 
