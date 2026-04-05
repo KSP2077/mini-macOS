@@ -5,7 +5,6 @@
 <title>Mini OS PRO</title>
 
 <style>
-
 body {
     margin: 0;
     background: black;
@@ -56,7 +55,6 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    color: white;
 }
 
 /* APPS */
@@ -76,6 +74,7 @@ body {
     text-align: center;
     line-height: 50px;
     cursor: pointer;
+    color: white;
 }
 
 /* TASKBAR */
@@ -88,6 +87,7 @@ body {
     display: flex;
     align-items: center;
     padding: 0 10px;
+    color: white;
 }
 
 .task-icon {
@@ -110,7 +110,6 @@ body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     overflow: auto;
 }
-
 </style>
 </head>
 
@@ -146,12 +145,18 @@ body {
 
 <script>
 
+/* ELEMENTS */
+const lockEl = document.getElementById("lock");
+const bootEl = document.getElementById("boot");
+const desktopEl = document.getElementById("desktop");
+const usersDiv = document.getElementById("users");
+
 /* USERS */
 const users = {Enzo:"enzo", Theo:"1611", guest:""};
 
 /* CLOCK */
 setInterval(()=>{
-document.getElementById("lock").innerText =
+lockEl.innerText =
 new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})+" ➜ SWIPE";
 },1000);
 
@@ -162,19 +167,27 @@ new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
 /* SWIPE */
 let startX=0;
-lock.onmousedown=e=>startX=e.clientX;
-lock.onmouseup=e=>{if(e.clientX-startX>120)unlock();}
-lock.ontouchstart=e=>startX=e.touches[0].clientX;
-document.ontouchend=e=>{
-if(e.changedTouches[0].clientX-startX>120)unlock();
-};
 
-function unlock(){lock.style.display="none";boot();}
+lockEl.onmousedown=e=>startX=e.clientX;
+lockEl.onmouseup=e=>{if(e.clientX-startX>120)unlock();};
+
+lockEl.ontouchstart=e=>startX=e.touches[0].clientX;
+
+document.addEventListener("touchend",e=>{
+if(e.changedTouches[0].clientX-startX>120)unlock();
+});
+
+/* UNLOCK */
+function unlock(){
+lockEl.style.display="none";
+boot();
+}
 
 /* BOOT */
 function boot(){
-boot.style.display="block";
+bootEl.style.display="block";
 usersDiv.innerHTML="";
+
 for(let u in users){
 let b=document.createElement("button");
 b.innerText=u;
@@ -186,13 +199,16 @@ usersDiv.appendChild(b);
 /* LOGIN */
 function login(u){
 if(u==="guest"){openDesktop();return;}
-if(prompt("Mot de passe")==users[u])openDesktop();
-else alert("❌");
+
+let pwd=prompt("Mot de passe");
+if(pwd===users[u])openDesktop();
+else alert("❌ mauvais mot de passe");
 }
 
+/* DESKTOP */
 function openDesktop(){
-boot.style.display="none";
-desktop.style.display="block";
+bootEl.style.display="none";
+desktopEl.style.display="block";
 }
 
 /* WINDOW */
@@ -205,22 +221,23 @@ w.style.left="200px";
 w.innerHTML=`
 <div style="display:flex;justify-content:space-between;">
 <b>${title}</b>
-<span style="color:gold;cursor:pointer;font-size:18px;
-filter:drop-shadow(0 0 3px gold);"
+<span style="color:gold;cursor:pointer;font-size:18px"
 onclick="this.parentElement.parentElement.remove()">⚙️</span>
 </div>
 <div style="margin-top:10px">${content}</div>
 `;
 
-desktop.appendChild(w);
+desktopEl.appendChild(w);
 }
 
-/* FINDER DRAG DROP */
+/* DRAG & DROP */
 function setupDrop(){
 const dz=document.getElementById("dropZone");
 const gal=document.getElementById("gallery");
 
-dz.ondragover=e=>{e.preventDefault();dz.style.background="#444";}
+if(!dz || !gal) return;
+
+dz.ondragover=e=>{e.preventDefault();dz.style.background="#444";};
 dz.ondragleave=()=>dz.style.background="transparent";
 
 dz.ondrop=e=>{
@@ -251,17 +268,17 @@ createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
 }
 
 if(app==="window1"){
-createWindow("Fenêtre","🎉 OK !");
+createWindow("Fenêtre","🎉 Nouvelle fenêtre !");
 }
 
 if(app==="finder"){
 createWindow("Finder",`
 <div id="dropZone" style="border:2px dashed gray;padding:20px;text-align:center">
-Glisse images JPG ici
+Glisse images JPG ici 📂
 </div>
 <div id="gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"></div>
 `);
-setTimeout(setupDrop,100);
+setTimeout(setupDrop,200);
 }
 
 }
