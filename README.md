@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS</title>
+<title>Mini OS PRO</title>
 
 <style>
 
@@ -13,7 +13,6 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden;
 }
 
 /* ÉCRAN */
@@ -97,15 +96,13 @@ body {
     margin-right: 8px;
     border-radius: 6px;
     cursor: pointer;
-    color: white;
-    font-size: 14px;
 }
 
 /* WINDOW */
 .window {
     position: absolute;
-    width: 350px;
-    height: 250px;
+    width: 400px;
+    height: 300px;
     background: rgba(255,255,255,0.95);
     color: black;
     padding: 10px;
@@ -121,36 +118,26 @@ body {
 
 <div id="screen">
 
-<!-- LOCK -->
 <div id="lock">SWIPE ➜</div>
 
-<!-- BOOT -->
 <div id="boot">
-    <h2>MINI OS</h2>
+    <h2>MINI OS PRO</h2>
     <div id="users"></div>
 </div>
 
-<!-- DESKTOP -->
 <div id="desktop">
 
-<!-- APPS -->
 <div id="apps">
-
-    <div class="icon" onclick="openApp('safari')">Safari</div>
     <div class="icon" onclick="openApp('finder')">Finder</div>
     <div class="icon" onclick="openApp('notes')">Notes</div>
     <div class="icon" onclick="openApp('window1')">Fenêtre</div>
-
 </div>
 
-<!-- TASKBAR -->
 <div id="taskbar">
-    <div class="task-icon" onclick="openApp('safari')">🌐 Safari</div>
-    <div class="task-icon" onclick="openApp('finder')">📁 Finder</div>
-    <div class="task-icon" onclick="openApp('notes')">📝 Notes</div>
-    <div class="task-icon" onclick="openApp('window1')">🪟 Window</div>
-
-    <div style="margin-left:auto;color:white;padding-right:10px" id="time"></div>
+    <div class="task-icon" onclick="openApp('finder')">📁</div>
+    <div class="task-icon" onclick="openApp('notes')">📝</div>
+    <div class="task-icon" onclick="openApp('window1')">🪟</div>
+    <div style="margin-left:auto" id="time"></div>
 </div>
 
 </div>
@@ -160,134 +147,123 @@ body {
 <script>
 
 /* USERS */
-const users = {
-    Enzo: "enzo",
-    Theo: "1611",
-    guest: ""
-};
+const users = {Enzo:"enzo", Theo:"1611", guest:""};
 
-/* CLOCK LOCK */
-setInterval(() => {
-    document.getElementById("lock").innerText =
-        new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + " ➜ SWIPE";
-}, 1000);
+/* CLOCK */
+setInterval(()=>{
+document.getElementById("lock").innerText =
+new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})+" ➜ SWIPE";
+},1000);
 
-/* TIME TASKBAR */
-function updateTime() {
-    const now = new Date();
-    document.getElementById("time").innerText =
-        now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-}
-setInterval(updateTime, 1000);
-updateTime();
+setInterval(()=>{
+document.getElementById("time").innerText =
+new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+},1000);
 
 /* SWIPE */
-let startX = 0;
-
-document.getElementById("lock").onmousedown = e => startX = e.clientX;
-
-document.getElementById("lock").onmouseup = e => {
-    if (e.clientX - startX > 120) unlock();
+let startX=0;
+lock.onmousedown=e=>startX=e.clientX;
+lock.onmouseup=e=>{if(e.clientX-startX>120)unlock();}
+lock.ontouchstart=e=>startX=e.touches[0].clientX;
+document.ontouchend=e=>{
+if(e.changedTouches[0].clientX-startX>120)unlock();
 };
 
-document.getElementById("lock").ontouchstart = e => startX = e.touches[0].clientX;
-
-document.addEventListener("touchend", e => {
-    let endX = e.changedTouches[0].clientX;
-    if (endX - startX > 120) unlock();
-});
-
-function unlock() {
-    document.getElementById("lock").style.display = "none";
-    boot();
-}
+function unlock(){lock.style.display="none";boot();}
 
 /* BOOT */
-function boot() {
-    document.getElementById("boot").style.display = "block";
-
-    let container = document.getElementById("users");
-    container.innerHTML = "";
-
-    for (let u in users) {
-        let btn = document.createElement("button");
-        btn.innerText = u;
-        btn.onclick = () => login(u);
-        container.appendChild(btn);
-    }
+function boot(){
+boot.style.display="block";
+usersDiv.innerHTML="";
+for(let u in users){
+let b=document.createElement("button");
+b.innerText=u;
+b.onclick=()=>login(u);
+usersDiv.appendChild(b);
+}
 }
 
 /* LOGIN */
-function login(user) {
-    if (user === "guest") {
-        openDesktop();
-        return;
-    }
-
-    let pwd = prompt("Mot de passe pour " + user);
-
-    if (pwd === users[user]) {
-        openDesktop();
-    } else {
-        alert("❌ mauvais mot de passe");
-    }
+function login(u){
+if(u==="guest"){openDesktop();return;}
+if(prompt("Mot de passe")==users[u])openDesktop();
+else alert("❌");
 }
 
-/* DESKTOP */
-function openDesktop() {
-    document.getElementById("boot").style.display = "none";
-    document.getElementById("desktop").style.display = "block";
+function openDesktop(){
+boot.style.display="none";
+desktop.style.display="block";
 }
 
-/* WINDOW SYSTEM AVEC ⚙️ FERMETURE */
-function createWindow(title, content) {
-    let w = document.createElement("div");
-    w.className = "window";
-    w.style.top = "120px";
-    w.style.left = "200px";
+/* WINDOW */
+function createWindow(title,content){
+let w=document.createElement("div");
+w.className="window";
+w.style.top="120px";
+w.style.left="200px";
 
-    w.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-            <b>${title}</b>
-            <span style="cursor:pointer;font-size:18px" onclick="this.parentElement.parentElement.remove()">⚙️</span>
-        </div>
-        <div style="margin-top:10px;">
-            ${content}
-        </div>
-    `;
+w.innerHTML=`
+<div style="display:flex;justify-content:space-between;">
+<b>${title}</b>
+<span style="color:gold;cursor:pointer;font-size:18px;
+filter:drop-shadow(0 0 3px gold);"
+onclick="this.parentElement.parentElement.remove()">⚙️</span>
+</div>
+<div style="margin-top:10px">${content}</div>
+`;
 
-    document.getElementById("desktop").appendChild(w);
+desktop.appendChild(w);
+}
+
+/* FINDER DRAG DROP */
+function setupDrop(){
+const dz=document.getElementById("dropZone");
+const gal=document.getElementById("gallery");
+
+dz.ondragover=e=>{e.preventDefault();dz.style.background="#444";}
+dz.ondragleave=()=>dz.style.background="transparent";
+
+dz.ondrop=e=>{
+e.preventDefault();
+dz.style.background="transparent";
+
+for(let f of e.dataTransfer.files){
+if(f.type.startsWith("image/")){
+let r=new FileReader();
+r.onload=ev=>{
+let img=document.createElement("img");
+img.src=ev.target.result;
+img.style.width="100%";
+img.style.borderRadius="8px";
+gal.appendChild(img);
+};
+r.readAsDataURL(f);
+}
+}
+};
 }
 
 /* APPS */
-function openApp(app) {
+function openApp(app){
 
-    if (app === "safari") {
-        let url = prompt("URL ?");
-        if (!url) return;
-        if (!url.startsWith("http")) url = "https://" + url;
-        window.open(url);
-    }
+if(app==="notes"){
+createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
+}
 
-    if (app === "notes") {
-        createWindow("Notes", "<textarea style='width:100%;height:160px'></textarea>");
-    }
+if(app==="window1"){
+createWindow("Fenêtre","🎉 OK !");
+}
 
-    if (app === "window1") {
-        createWindow("Fenêtre", "🎉 Nouvelle fenêtre ouverte !");
-    }
+if(app==="finder"){
+createWindow("Finder",`
+<div id="dropZone" style="border:2px dashed gray;padding:20px;text-align:center">
+Glisse images JPG ici
+</div>
+<div id="gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"></div>
+`);
+setTimeout(setupDrop,100);
+}
 
-    if (app === "finder") {
-        createWindow(
-            "Finder",
-            `
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-                <img src="DJI_0003.JPG" style="width:100%;border-radius:8px">
-                <img src="DJI_0003.JPG" style="width:100%;border-radius:8px">
-            </div>
-            `
-        );
-    }
 }
 
 </script>
