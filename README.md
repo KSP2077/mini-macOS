@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS ULTRA FIX</title>
+<title>Mini OS FULL</title>
 
 <style>
 body{
@@ -23,7 +23,41 @@ background:url("DJI_0003.JPG") center/cover;
 overflow:hidden;
 }
 
-/* desktop */
+/* LOCK */
+#lock{
+position:absolute;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:30px;
+cursor:pointer;
+}
+
+/* BOOT */
+#boot{
+display:none;
+position:absolute;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+color:white;
+text-align:center;
+padding-top:40px;
+}
+
+/* LOGIN */
+#loginBox{
+background:rgba(0,0,0,0.5);
+padding:20px;
+border-radius:10px;
+display:inline-block;
+}
+
+/* DESKTOP */
 #desktop{
 display:none;
 width:100%;
@@ -31,7 +65,7 @@ height:100%;
 position:absolute;
 }
 
-/* icons */
+/* ICONS */
 .icon{
 width:90px;
 height:50px;
@@ -41,48 +75,38 @@ position:absolute;
 display:flex;
 justify-content:center;
 align-items:center;
-cursor:grab;
 user-select:none;
+cursor:grab;
 }
 
-/* positions */
 #app1{top:80px;left:50px;}
 #app2{top:150px;left:50px;}
 #app3{top:220px;left:50px;}
 
-/* window */
+/* TASKBAR */
+#taskbar{
+position:absolute;
+bottom:0;
+width:100%;
+height:40px;
+background:rgba(0,0,0,0.6);
+display:flex;
+align-items:center;
+padding:0 10px;
+color:white;
+}
+
+#time{margin-left:auto;}
+
+/* WINDOW */
 .window{
 position:absolute;
-width:420px;
-height:320px;
+width:400px;
+height:300px;
 background:white;
+color:black;
 border-radius:10px;
 padding:10px;
-overflow:auto;
-}
-
-/* finder */
-#dropZone{
-width:100%;
-height:120px;
-border:2px dashed gray;
-display:flex;
-justify-content:center;
-align-items:center;
-color:gray;
-margin-bottom:10px;
-}
-
-#gallery{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
-
-#gallery img{
-width:100%;
-border-radius:8px;
-cursor:grab;
 }
 </style>
 </head>
@@ -91,11 +115,29 @@ cursor:grab;
 
 <div id="screen">
 
+<div id="lock" onclick="unlock()">🔒 Swipe pour ouvrir</div>
+
+<div id="boot">
+<h2>MINI OS</h2>
+
+<div id="loginBox">
+<select id="userSelect"></select><br><br>
+<input type="password" id="passInput" placeholder="Mot de passe"><br><br>
+<button onclick="login()">Entrer</button>
+</div>
+
+</div>
+
 <div id="desktop">
 
-<div id="app1" class="icon" onclick="openApp('finder')">Finder</div>
-<div id="app2" class="icon" onclick="openApp('notes')">Notes</div>
-<div id="app3" class="icon" onclick="openApp('window1')">App</div>
+<div id="app1" class="icon">Finder</div>
+<div id="app2" class="icon">Notes</div>
+<div id="app3" class="icon">App</div>
+
+<div id="taskbar">
+<div>🍎 Start</div>
+<div id="time"></div>
+</div>
 
 </div>
 
@@ -103,61 +145,82 @@ cursor:grab;
 
 <script>
 
-const desktop=document.getElementById("desktop");
+/* USERS */
+const users={
+theo:"theo",
+enzo:"enzo"
+};
 
-/* OPEN */
-desktop.style.display="block";
+/* LOCK */
+function unlock(){
+document.getElementById("lock").style.display="none";
+document.getElementById("boot").style.display="block";
+initUsers();
+}
 
-/* DRAG ICONS + IMAGES */
+/* INIT USERS */
+function initUsers(){
+const sel=document.getElementById("userSelect");
+sel.innerHTML="";
+
+for(let u in users){
+let opt=document.createElement("option");
+opt.value=u;
+opt.text=u;
+sel.appendChild(opt);
+}
+}
+
+/* LOGIN */
+function login(){
+
+let u=document.getElementById("userSelect").value;
+let p=document.getElementById("passInput").value;
+
+if(p===users[u]){
+openDesktop();
+}else{
+alert("❌ mauvais mot de passe");
+}
+}
+
+/* DESKTOP */
+function openDesktop(){
+document.getElementById("boot").style.display="none";
+document.getElementById("desktop").style.display="block";
+
+document.querySelectorAll(".icon").forEach(el=>{
+makeDraggable(el);
+});
+
+/* double clic */
+document.getElementById("app1").ondblclick=()=>openApp("finder");
+document.getElementById("app2").ondblclick=()=>openApp("notes");
+document.getElementById("app3").ondblclick=()=>openApp("app");
+}
+
+/* DRAG */
 function makeDraggable(el){
 
 let dx=0,dy=0,drag=false;
 
-el.addEventListener("mousedown",(e)=>{
+el.onmousedown=(e)=>{
 drag=true;
 
-const rect=el.getBoundingClientRect();
-dx=e.clientX-rect.left;
-dy=e.clientY-rect.top;
+let r=el.getBoundingClientRect();
+dx=e.clientX-r.left;
+dy=e.clientY-r.top;
 
-document.addEventListener("mousemove",move);
-document.addEventListener("mouseup",stop);
-});
-
-function move(e){
-if(!drag) return;
+document.onmousemove=(e)=>{
+if(!drag)return;
 el.style.left=(e.clientX-dx)+"px";
 el.style.top=(e.clientY-dy)+"px";
-}
+};
 
-function stop(){
+document.onmouseup=()=>{
 drag=false;
-savePosition(el);
-document.removeEventListener("mousemove",move);
-document.removeEventListener("mouseup",stop);
-}
-}
-
-/* SAVE */
-function savePosition(el){
-if(!el.id) return;
-
-localStorage.setItem("icon-"+el.id, JSON.stringify({
-x:el.style.left||"0px",
-y:el.style.top||"0px"
-}));
-}
-
-/* LOAD */
-function loadPositions(){
-document.querySelectorAll(".icon").forEach(el=>{
-const data=localStorage.getItem("icon-"+el.id);
-if(data){
-const pos=JSON.parse(data);
-el.style.left=pos.x;
-el.style.top=pos.y;
-}
-});
+};
+};
 }
 
 /* WINDOWS */
@@ -169,85 +232,35 @@ w.style.top="100px";
 w.style.left="200px";
 
 w.innerHTML=`
-<div style="display:flex;justify-content:space-between;">
-<b>${title}</b>
-<span style="cursor:pointer;color:red"
-onclick="this.parentElement.parentElement.remove()">✖</span>
-</div>
-<div style="margin-top:10px">${content}</div>
+<b>${title}</b><br><br>
+${content}<br><br>
+<button onclick="this.parentElement.remove()">Fermer</button>
 `;
 
-desktop.appendChild(w);
+document.getElementById("desktop").appendChild(w);
 }
 
 /* APPS */
 function openApp(app){
 
 if(app==="finder"){
-
-createWindow("Finder",`
-<div id="dropZone">📁 Glisse JPG ici</div>
-<div id="gallery"></div>
-`);
-
-setTimeout(setupFinder,200);
+createWindow("Finder","📁 OK (base)");
 }
 
 if(app==="notes"){
 createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
 }
 
-if(app==="window1"){
-createWindow("App","OK");
+if(app==="app"){
+createWindow("App","🚀 OK");
 }
 }
 
-/* FINDER */
-function setupFinder(){
-
-const dropZone=document.getElementById("dropZone");
-const gallery=document.getElementById("gallery");
-
-if(!dropZone || !gallery) return;
-
-dropZone.addEventListener("dragover",(e)=>{
-e.preventDefault();
-dropZone.style.background="#222";
-});
-
-dropZone.addEventListener("dragleave",()=>{
-dropZone.style.background="transparent";
-});
-
-dropZone.addEventListener("drop",(e)=>{
-e.preventDefault();
-dropZone.style.background="transparent";
-
-for(let file of e.dataTransfer.files){
-
-if(file.type==="image/jpeg"){
-
-const reader=new FileReader();
-
-reader.onload=(ev)=>{
-const img=document.createElement("img");
-img.src=ev.target.result;
-gallery.appendChild(img);
-makeDraggable(img); // drag possible
-};
-
-reader.readAsDataURL(file);
-}
-}
-});
-}
-
-/* INIT */
-document.querySelectorAll(".icon").forEach(el=>{
-makeDraggable(el);
-});
-
-loadPositions();
+/* CLOCK */
+setInterval(()=>{
+document.getElementById("time").innerText=
+new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+},1000);
 
 </script>
 
