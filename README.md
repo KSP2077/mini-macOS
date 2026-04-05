@@ -16,7 +16,7 @@ body {
     overflow: hidden;
 }
 
-/* ÉCRAN 1024x720 */
+/* ÉCRAN */
 #screen {
     width: 1024px;
     height: 720px;
@@ -60,7 +60,7 @@ body {
     color: white;
 }
 
-/* APPS BUREAU */
+/* APPS */
 #apps {
     position: absolute;
     top: 50px;
@@ -101,16 +101,17 @@ body {
     font-size: 14px;
 }
 
-/* WINDOWS */
+/* WINDOW */
 .window {
     position: absolute;
-    width: 300px;
-    height: 200px;
-    background: rgba(255,255,255,0.9);
+    width: 350px;
+    height: 250px;
+    background: rgba(255,255,255,0.95);
     color: black;
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    overflow: auto;
 }
 
 </style>
@@ -132,11 +133,13 @@ body {
 <!-- DESKTOP -->
 <div id="desktop">
 
-<!-- APPS BUREAU -->
+<!-- APPS -->
 <div id="apps">
+
     <div class="icon" onclick="openApp('safari')">Safari</div>
     <div class="icon" onclick="openApp('finder')">Finder</div>
     <div class="icon" onclick="openApp('notes')">Notes</div>
+    <div class="icon" onclick="openApp('window1')">Fenêtre</div>
 
 </div>
 
@@ -145,6 +148,8 @@ body {
     <div class="task-icon" onclick="openApp('safari')">🌐 Safari</div>
     <div class="task-icon" onclick="openApp('finder')">📁 Finder</div>
     <div class="task-icon" onclick="openApp('notes')">📝 Notes</div>
+    <div class="task-icon" onclick="openApp('window1')">🪟 Window</div>
+
     <div style="margin-left:auto;color:white;padding-right:10px" id="time"></div>
 </div>
 
@@ -167,15 +172,11 @@ setInterval(() => {
         new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + " ➜ SWIPE";
 }, 1000);
 
-/* TASKBAR TIME */
+/* TIME TASKBAR */
 function updateTime() {
     const now = new Date();
-    const time = now.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    document.getElementById("time").innerText = time;
+    document.getElementById("time").innerText =
+        now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 setInterval(updateTime, 1000);
 updateTime();
@@ -259,11 +260,24 @@ function openApp(app) {
     }
 
     if (app === "notes") {
-        createWindow("Notes", "<textarea style='width:100%;height:140px'></textarea>");
+        createWindow("Notes", "<textarea style='width:100%;height:160px'></textarea>");
     }
 
+    if (app === "window1") {
+        createWindow("Fenêtre", "🎉 Nouvelle fenêtre ouverte !");
+    }
+
+    /* FINDER AVEC IMAGES */
     if (app === "finder") {
-        createWindow("Finder", "📁 OK");
+        createWindow(
+            "Finder",
+            `
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+                <img src="DJI_0003.JPG" style="width:100%;border-radius:8px">
+                <img src="DJI_0003.JPG" style="width:100%;border-radius:8px">
+            </div>
+            `
+        );
     }
 }
 
