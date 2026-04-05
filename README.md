@@ -239,13 +239,23 @@ function openDesktop() {
     document.getElementById("desktop").style.display = "block";
 }
 
-/* WINDOWS */
+/* WINDOW SYSTEM AVEC ⚙️ FERMETURE */
 function createWindow(title, content) {
     let w = document.createElement("div");
     w.className = "window";
     w.style.top = "120px";
     w.style.left = "200px";
-    w.innerHTML = "<b>" + title + "</b><br>" + content;
+
+    w.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <b>${title}</b>
+            <span style="cursor:pointer;font-size:18px" onclick="this.parentElement.parentElement.remove()">⚙️</span>
+        </div>
+        <div style="margin-top:10px;">
+            ${content}
+        </div>
+    `;
+
     document.getElementById("desktop").appendChild(w);
 }
 
@@ -267,7 +277,6 @@ function openApp(app) {
         createWindow("Fenêtre", "🎉 Nouvelle fenêtre ouverte !");
     }
 
-    /* FINDER AVEC IMAGES */
     if (app === "finder") {
         createWindow(
             "Finder",
