@@ -2,99 +2,75 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini OS ULTRA</title>
+<title>Mini OS PRO</title>
 
 <style>
-body {
-    margin: 0;
-    background: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+body{
+margin:0;
+background:black;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+font-family:Arial;
 }
 
-/* ÉCRAN */
-#screen {
-    width: 1024px;
-    height: 720px;
-    position: relative;
-    font-family: Arial;
-    overflow: hidden;
-    background: url("DJI_0003.JPG") center center / cover no-repeat;
+#screen{
+width:1024px;
+height:720px;
+position:relative;
+background:url("DJI_0003.JPG") center/cover;
+overflow:hidden;
 }
 
-/* LOCK */
-#lock {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
+/* desktop */
+#desktop{
+width:100%;
+height:100%;
+position:absolute;
 }
 
-/* BOOT */
-#boot {
-    display: none;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    text-align: center;
-    padding-top: 50px;
+/* icon bureau */
+.icon{
+position:absolute;
+width:80px;
+height:80px;
+cursor:grab;
 }
 
-/* DESKTOP */
-#desktop {
-    display: none;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+/* window */
+.window{
+position:absolute;
+width:420px;
+height:300px;
+background:white;
+border-radius:10px;
+padding:10px;
+overflow:auto;
 }
 
-/* APPS */
-.icon {
-    width: 90px;
-    height: 50px;
-    background: rgba(0,0,0,0.5);
-    text-align: center;
-    line-height: 50px;
-    color: white;
-    position: absolute;
-    cursor: grab;
+/* finder */
+#dropZone{
+width:100%;
+height:120px;
+border:2px dashed gray;
+display:flex;
+justify-content:center;
+align-items:center;
+color:gray;
+margin-bottom:10px;
 }
 
-/* positions initiales */
-#app1 { top:80px; left:50px; }
-#app2 { top:150px; left:50px; }
-#app3 { top:220px; left:50px; }
-
-/* TASKBAR */
-#taskbar {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 45px;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    color: white;
+#gallery{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
 }
 
-/* WINDOW */
-.window {
-    position: absolute;
-    width: 400px;
-    height: 300px;
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
+#gallery img{
+width:100%;
+border-radius:8px;
+cursor:grab;
 }
 </style>
 </head>
@@ -103,22 +79,7 @@ body {
 
 <div id="screen">
 
-<div id="lock">SWIPE ➜</div>
-
-<div id="boot">
-    <h2>MINI OS ULTRA</h2>
-    <div id="users"></div>
-</div>
-
 <div id="desktop">
-
-<div id="app1" class="icon" onclick="openApp('finder')">Finder</div>
-<div id="app2" class="icon" onclick="openApp('notes')">Notes</div>
-<div id="app3" class="icon" onclick="openApp('window1')">Fenêtre</div>
-
-<div id="taskbar">
-    <div style="margin-left:auto" id="time"></div>
-</div>
 
 </div>
 
@@ -126,154 +87,160 @@ body {
 
 <script>
 
-/* ELEMENTS */
-const lockEl = document.getElementById("lock");
-const bootEl = document.getElementById("boot");
-const desktopEl = document.getElementById("desktop");
-const usersDiv = document.getElementById("users");
+const desktop=document.getElementById("desktop");
 
-/* USERS */
-const users = {Enzo:"enzo", Theo:"1611", guest:""};
-
-/* CLOCK */
-setInterval(()=>{
-lockEl.innerText =
-new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})+" ➜ SWIPE";
-},1000);
-
-setInterval(()=>{
-document.getElementById("time").innerText =
-new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-},1000);
-
-/* SWIPE */
-let startX=0;
-
-lockEl.onmousedown=e=>startX=e.clientX;
-lockEl.onmouseup=e=>{if(e.clientX-startX>120)unlock();};
-
-function unlock(){
-lockEl.style.display="none";
-boot();
-}
-
-/* BOOT */
-function boot(){
-bootEl.style.display="block";
-usersDiv.innerHTML="";
-
-for(let u in users){
-let b=document.createElement("button");
-b.innerText=u;
-b.onclick=()=>login(u);
-usersDiv.appendChild(b);
-}
-}
-
-/* LOGIN */
-function login(u){
-if(u==="guest"){openDesktop();return;}
-let pwd=prompt("Mot de passe");
-if(pwd===users[u])openDesktop();
-else alert("❌");
-}
-
-/* DESKTOP */
-function openDesktop(){
-bootEl.style.display="none";
-desktopEl.style.display="block";
-
-document.querySelectorAll(".icon")
-.forEach(icon=>makeDraggable(icon));
-
-loadPositions(); // recharge positions
-}
-
-/* DRAG */
+/* DRAG SIMPLE (bureau + images) */
 function makeDraggable(el){
 
-let offsetX=0, offsetY=0, isDragging=false;
+let dx=0,dy=0,drag=false;
 
 el.addEventListener("mousedown",(e)=>{
-isDragging=true;
-offsetX=e.clientX-el.offsetLeft;
-offsetY=e.clientY-el.offsetTop;
+drag=true;
+
+const r=el.getBoundingClientRect();
+dx=e.clientX-r.left;
+dy=e.clientY-r.top;
 
 document.addEventListener("mousemove",move);
 document.addEventListener("mouseup",stop);
 });
 
 function move(e){
-if(!isDragging) return;
-el.style.left=(e.clientX-offsetX)+"px";
-el.style.top=(e.clientY-offsetY)+"px";
+if(!drag) return;
+el.style.left=(e.clientX-dx)+"px";
+el.style.top=(e.clientY-dy)+"px";
 }
 
 function stop(){
-isDragging=false;
-savePosition(el);
-
+drag=false;
 document.removeEventListener("mousemove",move);
 document.removeEventListener("mouseup",stop);
 }
 }
 
-/* SAVE */
-function savePosition(el){
-const pos = {
-x: el.style.left,
-y: el.style.top
-};
-localStorage.setItem("icon-"+el.id, JSON.stringify(pos));
-}
-
-/* LOAD */
-function loadPositions(){
-document.querySelectorAll(".icon").forEach(el=>{
-const data = localStorage.getItem("icon-"+el.id);
-if(data){
-const pos = JSON.parse(data);
-el.style.left = pos.x;
-el.style.top = pos.y;
-}
-});
-}
-
 /* WINDOW */
 function createWindow(title,content){
+
 let w=document.createElement("div");
 w.className="window";
-w.style.top="120px";
+w.style.top="100px";
 w.style.left="200px";
 
 w.innerHTML=`
 <div style="display:flex;justify-content:space-between;">
 <b>${title}</b>
-<span style="color:gold;cursor:pointer"
-onclick="this.parentElement.parentElement.remove()">⚙️</span>
+<span style="cursor:pointer;color:red"
+onclick="this.parentElement.parentElement.remove()">✖</span>
 </div>
-${content}
+<div style="margin-top:10px">${content}</div>
 `;
 
-desktopEl.appendChild(w);
+desktop.appendChild(w);
 }
 
-/* APPS */
-function openApp(app){
+/* APP FINDER */
+function openFinder(){
 
-if(app==="notes"){
-createWindow("Notes","<textarea style='width:100%;height:200px'></textarea>");
+createWindow("Finder",`
+<div id="dropZone">📁 Glisse des images JPG ici</div>
+<div id="gallery"></div>
+`);
+
+setupFinder();
 }
 
-if(app==="window1"){
-createWindow("Fenêtre","🎉 OK !");
+/* FINDER DRAG & DROP */
+function setupFinder(){
+
+const dropZone=document.getElementById("dropZone");
+const gallery=document.getElementById("gallery");
+
+if(!dropZone || !gallery) return;
+
+/* hover */
+dropZone.addEventListener("dragover",(e)=>{
+e.preventDefault();
+dropZone.style.background="#222";
+});
+
+dropZone.addEventListener("dragleave",()=>{
+dropZone.style.background="transparent";
+});
+
+/* drop JPG */
+dropZone.addEventListener("drop",(e)=>{
+e.preventDefault();
+dropZone.style.background="transparent";
+
+const files=e.dataTransfer.files;
+
+for(let file of files){
+
+if(file.type==="image/jpeg"){
+
+const reader=new FileReader();
+
+reader.onload=(ev)=>{
+const img=document.createElement("img");
+img.src=ev.target.result;
+
+gallery.appendChild(img);
+
+/* 🔥 drag vers bureau */
+enableDragToDesktop(img);
+};
+
+reader.readAsDataURL(file);
+}
+}
+});
 }
 
-if(app==="finder"){
-createWindow("Finder","Mini Finder prêt 📁");
+/* IMAGE -> BUREAU */
+function enableDragToDesktop(img){
+
+img.draggable=true;
+
+img.addEventListener("dragstart",(e)=>{
+e.dataTransfer.setData("img",img.src);
+});
+
+/* drop sur bureau */
+desktop.addEventListener("dragover",(e)=>{
+e.preventDefault();
+});
+
+desktop.addEventListener("drop",(e)=>{
+e.preventDefault();
+
+const src=e.dataTransfer.getData("img");
+
+if(src){
+createDesktopImage(src,e.clientX,e.clientY);
+}
+});
 }
 
+/* IMAGE SUR BUREAU */
+function createDesktopImage(src,x,y){
+
+let img=document.createElement("img");
+
+img.src=src;
+img.className="icon";
+img.style.left=x+"px";
+img.style.top=y+"px";
+
+desktop.appendChild(img);
+
+makeDraggable(img);
 }
+
+/* DEMO APP */
+let finderBtn=document.createElement("button");
+finderBtn.innerText="Finder";
+finderBtn.onclick=openFinder;
+desktop.appendChild(finderBtn);
 
 </script>
 
